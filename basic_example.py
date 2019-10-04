@@ -17,9 +17,9 @@ fig = plt.figure(num=None, figsize=(14, 6), dpi=80, facecolor='w', edgecolor='k'
 
 XMAX = 10
 ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 10))
-eje_x = [1,2,3,4,5,6,7,8,9,10]
-my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
-plt.xticks(eje_x, my_xticks)
+#eje_x = [1,2,3,4,5,6,7,8,9,10]
+#my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
+#plt.xticks(eje_x, my_xticks)
 
 line, = ax.plot([], [], lw=2)
 
@@ -31,17 +31,24 @@ def init():
 
 # animation function.  This is called sequentially
 def animate(t):
-    x = np.linspace(0, XMAX, 1000)
-    y = np.piecewise(x, [x<3, (x>=3) & (x<=7), x>7], [lambda x: 0,lambda x: x , lambda x: 0]) 
-    x = (x+(t/100))%XMAX
-    line.set_data(x, y)
+    
+    x: np.ndarray = np.linspace(0, XMAX, 1000)
+    z: np.ndarray = np.copy(x)
+    y: np.ndarray = np.piecewise(x, [x<3, (x>=3) & (x<=7), x>7], [lambda x: 0,lambda x: x , lambda x: 0]) 
+    z: np.ndarray = z + ((t/100)%3)
+    print("Z =", z[-1])
+    if (z[-1] >= XMAX+3) : 
+        z = np.copy(x)
+        print (z[-1])
+    
+    line.set_data(z, y)
     print (t)
     return line,
 
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=10000, interval=30, blit=True)
+                               frames=1000, interval=10, blit=True)
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
