@@ -8,10 +8,7 @@ license: BSD
 Please feel free to use and modify this, but keep the above information. Thanks!
 """
 
-import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib import animation
-import plotly.tools as tls
+
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure()
 XMAX = 10
