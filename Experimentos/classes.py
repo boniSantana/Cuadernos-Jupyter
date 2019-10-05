@@ -30,20 +30,18 @@ class function:
     def Yvalues(self):
         return np.piecewise(self.x, self.Condition(), self.Function()) 
 
+    def lastX(self):
+        return self.Xfunc[1]
+
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure(num=None, figsize=(14, 6), dpi=80, facecolor='w', edgecolor='k')
-
 
 movefunction = function ([2,11],[0, 1, 0], [2,4,1000])
 staticfunction = function ([7.5,11], [0, 10, 0], [7.5, 11, 1000])
 
 XMAX = 20
-MAXVALUEFUNC = 4
-desplazamiento = XMAX - MAXVALUEFUNC
-MINVALUEFUNC = 2
+desplazamiento = XMAX - movefunction.lastX()
 
-MINVALUEFUNC2 = 7.5
-MAXVALUEFUNC2 = 11
 
 ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
 #eje_x = [1,2,3,4,5,6,7,8,9,10]
@@ -53,10 +51,11 @@ ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot ([], [], lw=2)
 
-x2 = np.linspace(MINVALUEFUNC2-0.01, MAXVALUEFUNC2+0.01, 1000)
-y2 = np.piecewise(x2, [x2<MINVALUEFUNC2, (x2>=MINVALUEFUNC2) & (x2<=MAXVALUEFUNC2), x2>MAXVALUEFUNC2], [lambda x: 0,lambda x: 2*x , lambda x: 0]) 
+x2 = staticfunction.Xvalues()
+y2 = staticfunction.Yvalues()
 polygone = ax.fill_between (x2[0:0] ,y2[0:0], facecolor='yellow', alpha=0.5)
-   
+
+
 # initialization function: plot the background of each frame
 def init():
     line.set_data([], [])
@@ -67,24 +66,19 @@ def init():
 def animate(t):
 
     x = movefunction.Xvalues()
+    y = movefunction.Yvalues()
     z = np.copy(x)
-    y = movefunction.Yvalues() 
+    
     z = z + (t/100)
 
-    x2: np.ndarray = np.linspace(MINVALUEFUNC2-0.01, MAXVALUEFUNC2+0.01, 1000)
-    
     ax.collections.clear()
      
-    #348 
-    if (z[-1] >= x2[0]):
+    if (z[-1] >= x2[0]): # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
         polygone = ax.fill_between (x2[0:2*(t-348)] ,y2[0:2*(t-348)], facecolor='yellow', alpha=0.5)
 
     else:
         polygone = ax.fill_between (x2[0:0] ,y2[0:0], facecolor='yellow', alpha=0.5)
-# sin el else no anda, se referencia antes de que se llame, no entiendo por que.
-
-    if (z[-1] >= XMAX+XMAX-MAXVALUEFUNC) : 
-        z = np.copy(x)
+    # sin el else no anda, se referencia antes de que se llame, no entiendo por que.
 
     line.set_data(z, y)
     return line, line2, polygone
@@ -92,7 +86,7 @@ def animate(t):
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames= desplazamiento * 100, interval=10, blit=True)
+                               frames= desplazamiento * 100, interval=5, blit=True)
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
