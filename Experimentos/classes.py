@@ -1,77 +1,126 @@
-import numpy as np
 import matplotlib
 
 matplotlib.use('Qt5Agg')
 
-import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import pyplot as plt
 from matplotlib import animation
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
-from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
-from typing import Tuple
+import plotly.tools as tls
 
-XMIN = -1
-XMAX = 5
-YMIN = -0.1
-YMAX = 6
+class function:
+
+    def __init__(self, conditionArray,funcArray, Xfunc):
+        self.conditionArray = conditionArray
+        self.funcArray = funcArray
+        self.Xfunc = Xfunc
+        self.x = np.linspace(self.Xfunc[0]-0.01, self.Xfunc[1]+0.01, self.Xfunc[2])
+
+    def __str__(self):
+        return str("Aca voy a poner en el JupyterNotebook algo cool para mostrar tipo Latex la ec")
+
+    def Xvalues(self):
+        return self.x
+    
+    def Condition(self):
+        return [self.x<self.Xfunc[0], (self.x>=self.Xfunc[0]) & (self.x<=self.Xfunc[1]), self.x>self.Xfunc[2]]
+
+    def Function(self):
+        return [lambda f:self.funcArray[0],lambda f:self.funcArray[1],lambda f:self.funcArray[2]]
+
+    def Yvalues(self):
+        return np.piecewise(self.x, self.Condition(), self.Function()) 
 
 # First set up the figure, the axis, and the plot element we want to animate
-fig: Figure = plt.figure() # fig es de tipo figure
-ax: Axes = plt.axes(xlim=(XMIN, XMAX), ylim=(YMIN, YMAX))
+fig = plt.figure(num=None, figsize=(14, 6), dpi=80, facecolor='w', edgecolor='k')
 
-line: Line2D = ax.plot([], [], lw=2)[0]
-line2: Line2D = ax.plot([], [], lw=2)[0]
-rect = Rectangle((0,0), 1, 1, 0, color='none')
-ax.add_patch(rect)
+
+movefunction = function ([2,11],[0, 1, 0], [2,4,1000])
+staticfunction = function ([7.5,11], [0, 10, 0], [7.5, 11, 1000])
+
+XMAX = 20
+MAXVALUEFUNC = 4
+desplazamiento = XMAX - MAXVALUEFUNC
+MINVALUEFUNC = 2
+
+MINVALUEFUNC2 = 7.5
+MAXVALUEFUNC2 = 11
+
+ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
+#eje_x = [1,2,3,4,5,6,7,8,9,10]
+#my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
+#plt.xticks(eje_x, my_xticks)
+
+line, = ax.plot([], [], lw=2)
+line2, = ax.plot ([], [], lw=2)
+
+x2 = np.linspace(MINVALUEFUNC2-0.01, MAXVALUEFUNC2+0.01, 1000)
+y2 = np.piecewise(x2, [x2<MINVALUEFUNC2, (x2>=MINVALUEFUNC2) & (x2<=MAXVALUEFUNC2), x2>MAXVALUEFUNC2], [lambda x: 0,lambda x: 2*x , lambda x: 0]) 
+polygone = ax.fill_between (x2[0:0] ,y2[0:0], facecolor='yellow', alpha=0.5)
+   
 # initialization function: plot the background of each frame
-def init(): # -> Tuple[Line2D] significa que retorna eso.
+def init():
     line.set_data([], [])
-    line2.set_data([], [])
-
-    return (line, line2, rect) # es una tupla: array invariable.
+    line2.set_data([x2], [y2])
+    return line, line2, polygone
 
 # animation function.  This is called sequentially
 def animate(t):
 
-    x: np.ndarray = np.linspace(XMIN, XMAX, 1000)
-    # t takes values between 0 and 200, we need values between XMIN, XMAX
-    t_scaled = t/20 + XMIN
-    y1 = x * 0
-    np.place(y1, (x>t_scaled) & (x<t_scaled+2), [2])
+    x = movefunction.Xvalues()
+    z = np.copy(x)
+    y = movefunction.Yvalues() 
+    z = z + (t/100)
 
-    y2 = 1*x - 2 #si pongo x se rompe...
+    x2: np.ndarray = np.linspace(MINVALUEFUNC2-0.01, MAXVALUEFUNC2+0.01, 1000)
+    
+    ax.collections.clear()
+     
+    #348 
+    if (z[-1] >= x2[0]):
+        polygone = ax.fill_between (x2[0:2*(t-348)] ,y2[0:2*(t-348)], facecolor='yellow', alpha=0.5)
 
-    np.place(y2,(x>3) | (x<2), [0])
+    else:
+        polygone = ax.fill_between (x2[0:0] ,y2[0:0], facecolor='yellow', alpha=0.5)
+# sin el else no anda, se referencia antes de que se llame, no entiendo por que.
 
-    plt.fill_between(x,y2,y1,where = (y1 < y2), color = 'g', interpolate = True)
-#
-#    if ( 0 < t_scaled and t_scaled < 1):
-#        rect.set_color('green')
-#        rect.set_width( 1 - t_scaled)
-#        rect.set_x(t_scaled)
-#
-#    if ( -1 < t_scaled and t_scaled < 0):
-#        rect.set_color('green')
-#        rect.set_width(t_scaled + 1)
-#        if (rect.get_x() != 0):
-#            rect.set_x(0)
+    if (z[-1] >= XMAX+XMAX-MAXVALUEFUNC) : 
+        z = np.copy(x)
 
-    line.set_data(x, y1)
-    line2.set_data(x, y2)
-
-    return (line, line2, rect)
+    line.set_data(z, y)
+    return line, line2, polygone
 
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=200, interval=20, blit=True)
+                               frames= desplazamiento * 100, interval=10, blit=True)
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
+# http://matplotlib.sourceforge.net/api/animation_api.html
+#anim.save('basic_animation.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+
 plt.show()
 
+#Si ymove>yquieto pinto yquieto,
+#Sino pinto ymove
+#Mientras haya intersección:
+#Si ymove>yquieto pinto yquieto,
+#Sino pinto ymove
+#Una variable que guarde un array de condiciones y otro un array de funciones
+#Y un intervalo donde graficar en X la función
+#Una clase llamada funcion que le pasas las condiciones y las funciones y las escribe correctamente
+#Adentro tiene el piecewise directamentee
+#Los parametros para inicializarla son:
+#1. Un np.ndarray de valores de X.
+#2. Un array de funciones
+#3. Un array de condiciones
 
-# To save the animation, use the command: line_ani.save('lines.mp4')
+#Los metodos son:
+#yvalues()
+#xvalues()
+#
+#
+#
+#
