@@ -1,17 +1,12 @@
-"""
-Matplotlib Animation Example
+import matplotlib
 
-author: Jake Vanderplas
-email: vanderplas@astro.washington.edu
-website: http://jakevdp.github.com
-license: BSD
-Please feel free to use and modify this, but keep the above information. Thanks!
-"""
+matplotlib.use('Qt5Agg')
 
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
 import plotly.tools as tls
+
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure(num=None, figsize=(14, 6), dpi=80, facecolor='w', edgecolor='k')
 
@@ -22,7 +17,7 @@ MINVALUEFUNC = 2
 
 MINVALUEFUNC2 = 7.5
 MAXVALUEFUNC2 = 11
-i = 0
+
 ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
 #eje_x = [1,2,3,4,5,6,7,8,9,10]
 #my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
