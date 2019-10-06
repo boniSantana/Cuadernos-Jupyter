@@ -67,10 +67,32 @@ ax = plt.axes(xlim=XLIMS, ylim=YLIMS)
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot([], [], lw=2)
 
-x2 = np.linspace(MINVALUEFUNC2-0.01, MAXVALUEFUNC2+0.01, 1000)
-y2 = np.piecewise(x2, [x2 < MINVALUEFUNC2, (x2 >= MINVALUEFUNC2) & (
-    x2 <= MAXVALUEFUNC2), x2 > MAXVALUEFUNC2], [lambda x: 0, lambda x: 2*x, lambda x: 0])
-polygone = ax.fill_between(x2[0:0], y2[0:0], facecolor='yellow', alpha=0.5)
+x2 = np.linspace(
+    MINVALUEFUNC2 - 0.01,
+    MAXVALUEFUNC2 + 0.01,
+    1000
+)
+
+y2 = np.piecewise(
+    x2,
+    [
+        x2 < MINVALUEFUNC2,
+        (x2 >= MINVALUEFUNC2) & (x2 <= MAXVALUEFUNC2),
+        x2 > MAXVALUEFUNC2
+    ],
+    [
+        lambda x: 0,
+        lambda x: 2*x,
+        lambda x: 0
+    ]
+)
+
+polygone = ax.fill_between(
+    x2[0:0],
+    y2[0:0],
+    facecolor='yellow',
+    alpha=0.5
+)
 
 # initialization function: plot the background of each frame
 
@@ -80,14 +102,10 @@ def init():
     line2.set_data([x2], [y2])
     return line, line2, polygone
 
-# animation function.  This is called sequentially
-
-
 def animate(t):
-
-    x = movefunction.Xvalues()
+    x = movefunction.xValues()
     z = np.copy(x)
-    y = movefunction.Yvalues()
+    y = movefunction.yValues()
     z = z + (t/100)
 
     x2: np.ndarray = np.linspace(MINVALUEFUNC2-0.01, MAXVALUEFUNC2+0.01, 1000)
