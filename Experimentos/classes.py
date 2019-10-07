@@ -32,16 +32,8 @@ class Function:
     def lastX(self):
         return self.Xfunc[1]
 
+
 # First set up the figure, the axis, and the plot element we want to animate
-<<<<<<< HEAD
-fig = plt.figure(num=None, figsize=(14, 6), dpi=80, facecolor='w', edgecolor='k')
-
-movefunction = function ([2,11],[0, 1, 0], [2,4,1000])
-staticfunction = function ([7.5,11], [0, 10, 0], [7.5, 11, 1000])
-
-XMAX = 20
-desplazamiento = XMAX - movefunction.lastX()
-=======
 fig = plt.figure(
     num=None,
     figsize=(14, 6),
@@ -49,7 +41,6 @@ fig = plt.figure(
     facecolor='w',
     edgecolor='k'
 )
-
 
 movefunction = Function(
     [2, 11],
@@ -67,7 +58,6 @@ XLIMS = (0, 20)
 YLIMS = (-0.1, 50)
 MAXVALUEFUNC = 4
 DESPLAZAMIENTO = XLIMS[1] - MAXVALUEFUNC
->>>>>>> 07c3a7b1527cf86aaf4823606871d5eafbc66506
 
 
 ax = plt.axes(xlim=XLIMS, ylim=YLIMS)
@@ -105,14 +95,6 @@ polygone = ax.fill_between(
     alpha=0.5
 )
 
-<<<<<<< HEAD
-x2 = staticfunction.Xvalues()
-y2 = staticfunction.Yvalues()
-polygone = ax.fill_between (x2[0:0] ,y2[0:0], facecolor='yellow', alpha=0.5)
-
-
-=======
->>>>>>> 07c3a7b1527cf86aaf4823606871d5eafbc66506
 # initialization function: plot the background of each frame
 
 
@@ -122,23 +104,6 @@ def init():
     return line, line2, polygone
 
 def animate(t):
-<<<<<<< HEAD
-
-    x = movefunction.Xvalues()
-    y = movefunction.Yvalues()
-    z = np.copy(x)
-    
-    z = z + (t/100)
-
-    ax.collections.clear()
-     
-    if (z[-1] >= x2[0]): # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
-        polygone = ax.fill_between (x2[0:2*(t-348)] ,y2[0:2*(t-348)], facecolor='yellow', alpha=0.5)
-
-    else:
-        polygone = ax.fill_between (x2[0:0] ,y2[0:0], facecolor='yellow', alpha=0.5)
-    # sin el else no anda, se referencia antes de que se llame, no entiendo por que.
-=======
     x = movefunction.xValues()
     z = np.copy(x)
     y = movefunction.yValues()
@@ -168,7 +133,6 @@ def animate(t):
 
     if (z[-1] >= 2 * XLIMS[1] - MAXVALUEFUNC):
         z = np.copy(x)
->>>>>>> 07c3a7b1527cf86aaf4823606871d5eafbc66506
 
     line.set_data(z, y)
     return line, line2, polygone
@@ -176,11 +140,7 @@ def animate(t):
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-<<<<<<< HEAD
-                               frames= desplazamiento * 100, interval=5, blit=True)
-=======
                                frames=DESPLAZAMIENTO * 100, interval=10, blit=True)
->>>>>>> 07c3a7b1527cf86aaf4823606871d5eafbc66506
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
