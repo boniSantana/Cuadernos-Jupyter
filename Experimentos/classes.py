@@ -5,14 +5,11 @@ import matplotlib
 
 matplotlib.use('Qt5Agg')
 
-
 class Function:
     def __init__(self, conditionArray, funcArray, xfunc):
         self.conditions = conditionArray
         self.functions = funcArray
-
         self.xfunc = xfunc
-
         self.x = np.linspace(
             self.xfunc[0] - 0.01,
             self.xfunc[1] + 0.01,
