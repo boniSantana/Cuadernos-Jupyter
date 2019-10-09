@@ -2,17 +2,15 @@ from matplotlib import animation
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
+import sympy as sp
 
 matplotlib.use('Qt5Agg')
-
 
 class Function:
     def __init__(self, conditionArray, funcArray, xfunc):
         self.conditions = conditionArray
         self.functions = funcArray
-
         self.xfunc = xfunc
-
         self.x = np.linspace(
             self.xfunc[0] - 0.01,
             self.xfunc[1] + 0.01,
@@ -28,6 +26,7 @@ class Function:
     def yValues(self):
         return np.piecewise(self.x, self.conditions, self.functions)
 
+x = sp.symbols("x", real=True)
 
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure(
@@ -37,7 +36,6 @@ fig = plt.figure(
     facecolor='w',
     edgecolor='k'
 )
-
 
 movefunction = Function(
     [2, 11],
