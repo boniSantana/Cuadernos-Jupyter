@@ -21,13 +21,26 @@ Repo/
 
 ### Prerequisitos
 
-Necesitas Python, Jupyter notebook y varios paquetes.
-
-En otro momento haré la lista.
+Necesitas Python, Jupyter notebook, recomiendo tener PiP y para utilizar los mismos paquetes Poetry.
 ```
 Give examples
 ```
 
 ### Instalación
 
-En otro momento completaré.
+#### [Python](https://www.python.org/) 
+```bash
+sudo apt install python3
+```
+#### [PiP](https://pypi.org/project/pip/) 
+```bash
+¡Ya viene instalado con Python!
+```
+#### [Jupyter-Notebooks](https://jupyter.org/) 
+```bash
+pip install jupyterlab --user
+```
+#### [Poetry](https://poetry.eustace.io/) 
+```bash
+pip install poetry --user
+```
