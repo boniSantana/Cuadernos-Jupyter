@@ -1,3 +1,5 @@
+pyproject.toml
+poetry.lock
 /.vscode
 basic_animation.mp4
 Cuadernos-Jupyter/.ipynb_checkpoints/
