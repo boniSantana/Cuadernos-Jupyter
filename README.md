@@ -2,6 +2,8 @@
 
 Este es mi GitHub personal, si deseas tomar algo o preguntarme no dudes en hacerlo.
 
+![](readme.gif)
+
 ## ¿Qué puedes encontrar?
 
 Por ahora hay unos hermosos cuadernos Jupyter de la materia Análisis de Señales de Sistemas de segundo año de la UTNFRBA y esta en desarrollo una hermosa animación de una convolución.
@@ -21,13 +23,23 @@ Repo/
 
 ### Prerequisitos
 
-Necesitas Python, Jupyter notebook y varios paquetes.
-
-En otro momento haré la lista.
-```
-Give examples
-```
+Necesitas Python, Jupyter notebook, recomiendo tener PiP y para utilizar los mismos paquetes Poetry.
 
 ### Instalación
 
-En otro momento completaré.
+#### [Python](https://www.python.org/) 
+```bash
+sudo apt install python3
+```
+#### [PiP](https://pypi.org/project/pip/) 
+```bash
+¡Ya viene instalado con Python!
+```
+#### [Jupyter-Notebooks](https://jupyter.org/) 
+```bash
+pip install jupyterlab --user
+```
+#### [Poetry](https://poetry.eustace.io/) 
+```bash
+pip install poetry --user
+```
