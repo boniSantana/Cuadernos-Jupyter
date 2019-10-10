@@ -6,6 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
 import plotly.tools as tls
+import sympy as sp
 
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure(num=None, figsize=(14, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -25,6 +26,10 @@ ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
 
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot ([], [], lw=2)
+m = sp.symbols("m", real=True)
+
+def func1(m):
+    return 2*m
 
 # initialization function: plot the background of each frame
 def init():
@@ -38,7 +43,7 @@ def init():
 def animate(t):
 
     x2: np.ndarray = np.linspace(MINVALUEFUNC2-0.01, MAXVALUEFUNC2+0.01, 1000)
-    y2: np.ndarray = np.piecewise(x2, [x2<MINVALUEFUNC2, (x2>=MINVALUEFUNC2) & (x2<=MAXVALUEFUNC2), x2>MAXVALUEFUNC2], [lambda x: 0,lambda x: 2*x , lambda x: 0]) 
+    y2: np.ndarray = np.piecewise(x2, [x2<MINVALUEFUNC2, (x2>=MINVALUEFUNC2) & (x2<=MAXVALUEFUNC2), x2>MAXVALUEFUNC2], [lambda x: 0,lambda x: func1(x) , lambda x: 0]) 
 
     x: np.ndarray = np.linspace(MINVALUEFUNC-0.01, MAXVALUEFUNC+0.01, 1000)
     z: np.ndarray = np.copy(x)
@@ -75,7 +80,7 @@ anim = animation.FuncAnimation(fig, animate, init_func=init,
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-anim.save('basic_animation.mp4', fps=300, extra_args=['-vcodec', 'libx264'])
+#anim.save('basic_animation.mp4', fps=300, extra_args=['-vcodec', 'libx264'])
 
 plt.show()
 
