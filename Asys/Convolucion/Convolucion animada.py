@@ -6,6 +6,12 @@ import matplotlib
 
 matplotlib.use('Qt5Agg')
 
+def func1(x):
+    return 2*x
+
+def func2(x):
+    return 2*x
+
 class function:
 
     def __init__(self, conditionArray, Xfunc):
@@ -23,7 +29,7 @@ class function:
         return [self.x < self.Xfunc[0], (self.x >= self.Xfunc[0]) & (self.x <= self.Xfunc[1]), self.x > self.Xfunc[2]]
 
     def setFunctions(self, func1, func2, func3):
-        return [lambda f:func1, lambda f:func2, lambda f:func3]
+        return [lambda f:func1(self.x), lambda f:func2(self.x), lambda f:func3(self.x)]
 
     def Yvalues(self, functions):
         return np.piecewise(self.x, self.Condition(), functions)
@@ -37,18 +43,12 @@ class function:
 fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
                  facecolor='w', edgecolor='k')
 
-def func1(x):
-    return 2*x
 
-def func2(x):
-    return 2*x
 
 movefunction = function([2, 11], [2, 4, 1000])
 
 Functions =movefunction.setFunctions(
-    func1(movefunction.Xvalues()),
-    func2(movefunction.Xvalues()),
-    0)
+    func1,func2,0)
 
 staticfunction = function([7.5, 11], [7.5, 11, 1000])
 FunctionsStatic = staticfunction.setFunctions(0, 2, 0)
