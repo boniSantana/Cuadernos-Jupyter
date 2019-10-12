@@ -45,77 +45,89 @@ class function:
     def LastX(self):
         return self.lastX
 
+    def Desplazamiento (self, XMAX):
+        return XMAX - self.LastX()
 
 
-# First set up the figure, the axis, and the plot element we want to animate
+
+# Primero preparo la figura.
 fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
                  facecolor='w', edgecolor='k')
 
-
-
-movefunction = function([2, 4, 1000], [2,4,19], [lambda x: 0, lambda x: 2*x, lambda x: 0, lambda x: 10])
-
-staticfunction = function([5, 10, 1000], [5,10,17], [lambda x: 0, lambda x: x, lambda x: 0, lambda x: 3] )
-
+#Luego preparo el eje.
 XMAX = 20
-desplazamiento = XMAX - movefunction.LastX()
-
 ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
+
 #eje_x = [1,2,3,4,5,6,7,8,9,10]
 #my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
 #plt.xticks(eje_x, my_xticks)
 
+#Preparo las funciones que usaré
+movefunction = function([1, 4, 1000], [1,4], [lambda x: 0, lambda x: 2*x, lambda x: 0])
+staticfunction = function([10, 15, 1000], [10,15], [lambda x: 0, lambda x: x, lambda x: 0])
+
+#Cargo a init las dos líneas vacias
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot([], [], lw=2)
 
-x2 = staticfunction.Xvalues()
-y2 = staticfunction.Yvalues()
-polygone = ax.fill_between(x2[0:0], y2[0:0], facecolor='yellow', alpha=0.5)
-
-# initialization function: plot the background of each frame
+#Preparo los valores de la función que se moverá
+x_move = movefunction.Xvalues()
+y_move = movefunction.Yvalues()
 
 
+
+#Preparo los valores de la función estática
+x_static = staticfunction.Xvalues()
+y_static = staticfunction.Yvalues()
+
+# Inicializo el poligono vacío que luego rellenará el area.
+polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
+
+
+# Funcion que inicia la animación
 def init():
     line.set_data([], [])
-    line2.set_data([x2], [y2])
+    line2.set_data([x_static], [y_static])
     return line, line2, polygone
 
-# animation function.  This is called sequentially
-
+# Función animación, es llamada cíclicamente.
 
 def animate(t):
+    
+    #Variable auxiliar que contendrá los valors iniciales de x_move.
+    x_move_t = np.copy(x_move)
 
-    x_func = movefunction.Xvalues()
-    f_x = movefunction.Yvalues()
-    z = np.copy(x_func)
+    # x = xinicial + v*t
+    x_move_t = x_move_t + (x_static[1] - x_static[0])*t
 
-    z = z + (t/100)
-
-    ax.collections.clear()
-
+    ax.collections.clear() # Sino no funciona el rellenado correctamente
+    
     # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
-    if (z[-1] >= x2[0]):
-        polygone = ax.fill_between(
-            x2[0:2*(t-348)],
-            y2[0:2*(t-348)],
+    if (x_move_t[-1] >= x_static[0]):
+            t_encuentro: int = (x_static[0]-x_move[-1])/(x_static[1] - x_static[0])
+            print (t_encuentro)
+            polygone = ax.fill_between(
+            x_static[0:(t-1191)],
+            y_static[0:(t-1191)],
             facecolor='yellow',
             alpha=0.5)
 
+    # sin el else no anda, se referencia antes de que se llame, no entiendo por que.
     else:
         polygone = ax.fill_between(
-            x2[0:0],
-            y2[0:0],
+            x_static[0:0],
+            y_static[0:0],
             facecolor='yellow',
             alpha=0.5)
-    # sin el else no anda, se referencia antes de que se llame, no entiendo por que.
+    
 
-    line.set_data(z, f_x)
+    line.set_data(x_move_t, y_move)
     return line, line2, polygone
 
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=desplazamiento * 100, interval=5, blit=True)
+                               frames=movefunction.Desplazamiento(XMAX)*1000, interval=5, blit=True)
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
