@@ -71,7 +71,7 @@ ax = plt.axes(xlim=(-10, XMAX), ylim=(-0.1, 50))
 
 #Preparo las funciones que usaré
 movefunction = function([-5, -3, 1000], [-5,-3], [lambda x: 0, lambda x: 10, lambda x: 0], 1)
-staticfunction = function([4, 15, 1000], [4,15], [lambda x: 0, lambda x: -(x**2)+35, lambda x: 0], 1)
+staticfunction = function([4, 20, 1000], [4,20], [lambda x: 0, lambda x: -(x**2)+35, lambda x: 0], 1)
 
 #Cargo a init las dos líneas vacias
 line, = ax.plot([], [], lw=2)
@@ -112,12 +112,22 @@ def animate(t):
     
     # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
     if (x_move_t[-1] >= x_static[0]):
-            t_encuentro = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
-            polygone = ax.fill_between(
-            x_static[0:(t-t_encuentro)*staticfunction.VelocidadEntera()],
-            z[0:(t-t_encuentro)*staticfunction.VelocidadEntera()],
-            facecolor='yellow',
-            alpha=0.5)
+            t_encuentro_maximo_minimo = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
+            t_encuentro_minimo_minimo = int((x_static[0]-x_move[0])/staticfunction.Velocidad())
+            if (x_move_t[0] >= x_static[0]):
+                polygone = ax.fill_between(
+                x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
+                z[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
+                facecolor='blue',
+                alpha=0.5)
+            else:
+                polygone = ax.fill_between(
+                x_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+                z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+                facecolor='yellow',
+                alpha=0.5)
+                
+    
 
     # sin el else no anda, se referencia antes de que se llame, no entiendo por que.
     else:
