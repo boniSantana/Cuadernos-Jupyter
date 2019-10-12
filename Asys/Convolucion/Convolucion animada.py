@@ -8,17 +8,24 @@ matplotlib.use('Qt5Agg')
 
 class function:
 
-    def __init__(self, domain, conditionArray, functions):
+    def __init__(self, domain, conditionArray, functions, velocity):
         self.conditionArray = conditionArray
         self.functions = functions
         self.lastX = domain[1]
         self.x = np.linspace(domain[0]-0.01, domain[1]+0.01, domain[2])
+        self.velocity = velocity
 
     def __str__(self):
         return str("Aca voy a poner en el JupyterNotebook algo cool para mostrar tipo Latex la ec")
 
     def Xvalues(self):
         return self.x
+
+    def Velocidad(self):
+        return (self.x[10] - self.x[9])*self.velocity
+
+    def VelocidadEntera(self):
+        return self.velocity
 
     def Condition(self):
         
@@ -63,32 +70,33 @@ ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
 #plt.xticks(eje_x, my_xticks)
 
 #Preparo las funciones que usaré
-movefunction = function([1, 4, 1000], [1,4], [lambda x: 0, lambda x: 2*x, lambda x: 0])
-staticfunction = function([10, 15, 1000], [10,15], [lambda x: 0, lambda x: x, lambda x: 0])
+movefunction = function([1, 4, 1000], [1,4], [lambda x: 0, lambda x: 10, lambda x: 0], 5)
+staticfunction = function([10, 15, 1000], [10,15], [lambda x: 0, lambda x: 5, lambda x: 0], 5)
 
 #Cargo a init las dos líneas vacias
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot([], [], lw=2)
-
 #Preparo los valores de la función que se moverá
 x_move = movefunction.Xvalues()
 y_move = movefunction.Yvalues()
-
-
 
 #Preparo los valores de la función estática
 x_static = staticfunction.Xvalues()
 y_static = staticfunction.Yvalues()
 
+
+
+
 # Inicializo el poligono vacío que luego rellenará el area.
 polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
+polygone2 = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='white', alpha=0.5)
 
 
 # Funcion que inicia la animación
 def init():
     line.set_data([], [])
     line2.set_data([x_static], [y_static])
-    return line, line2, polygone
+    return line, line2, polygone, polygone2
 
 # Función animación, es llamada cíclicamente.
 
@@ -98,19 +106,35 @@ def animate(t):
     x_move_t = np.copy(x_move)
 
     # x = xinicial + v*t
-    x_move_t = x_move_t + (x_static[1] - x_static[0])*t
+    x_move_t = x_move_t + staticfunction.Velocidad()*t
 
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
+
     # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
     if (x_move_t[-1] >= x_static[0]):
-            t_encuentro: int = (x_static[0]-x_move[-1])/(x_static[1] - x_static[0])
-            print (t_encuentro)
+            t_encuentro = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
             polygone = ax.fill_between(
-            x_static[0:(t-1191)],
-            y_static[0:(t-1191)],
+            x_static[0:(t-t_encuentro)*staticfunction.VelocidadEntera()],
+            y_static[0:(t-t_encuentro)*staticfunction.VelocidadEntera()],
             facecolor='yellow',
             alpha=0.5)
+
+            if (x_move_t[0] >= x_static[0]):
+                t_encuentro_2 = int((x_move[0]-x_static[0])/staticfunction.Velocidad())
+                polygone2 = ax.fill_between(
+                x_static[0:(t-t_encuentro_2)*staticfunction.VelocidadEntera()],
+                y_static[0:(t-t_encuentro_2)*staticfunction.VelocidadEntera()],
+                facecolor='blue',
+                alpha=0.5)
+            else:
+                polygone2 = ax.fill_between(
+                x_static[0:0],
+                y_static[0:0],
+                facecolor='blue',
+                alpha=0.5)
+       
+
 
     # sin el else no anda, se referencia antes de que se llame, no entiendo por que.
     else:
@@ -119,15 +143,23 @@ def animate(t):
             y_static[0:0],
             facecolor='yellow',
             alpha=0.5)
+        polygone2 = ax.fill_between(
+            x_static[0:0],
+            y_static[0:0],
+            facecolor='blue',
+            alpha=0.5)
+
+ 
     
 
     line.set_data(x_move_t, y_move)
-    return line, line2, polygone
+    return line, line2, polygone, polygone2
 
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=movefunction.Desplazamiento(XMAX)*1000, interval=5, blit=True)
+                               frames=int((round(movefunction.Desplazamiento(XMAX)/staticfunction.Velocidad())))
+, interval=5, blit=True)
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
