@@ -21,13 +21,20 @@ class function:
         return self.x
 
     def Condition(self):
-        conditions = [self.x < self.conditionArray[0]]
-        for i, condition in enumerate(self.conditionArray[1:-1:]):
-            conditions.append([self.x >= condition & self.x < self.conditionArray[i+1]])
-
-        conditions.append([self.x >= self.conditionArray[-1]])
         
-        return conditions.append
+        conditions = [self.x < self.conditionArray[0]]
+       
+        if (len(self.conditionArray) == 2):
+            conditions.append( (self.x > self.conditionArray[0]) & (self.x < self.conditionArray[1]) )
+            conditions.append( self.x > self.conditionArray[1] )
+            return conditions
+
+        else:
+            for i, condition in enumerate(self.conditionArray[1:-1:]):
+                conditions.append( (self.x >= condition) & (self.x < self.conditionArray[i+1]) )
+            
+            conditions.append(self.x > self.conditionArray[-1])   
+            return conditions
 
     def setFunctions(self, functions):
         self.functions = functions
@@ -46,9 +53,9 @@ fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
 
 
 
-movefunction = function([2, 4, 1000], [2,4], [lambda x: 0, lambda x: 2*x, lambda x: 0])
+movefunction = function([2, 4, 1000], [2,4,19], [lambda x: 0, lambda x: 2*x, lambda x: 0, lambda x: 10])
 
-staticfunction = function([5, 10, 1000], [5,10],[lambda x: 0, lambda x: x, lambda x: 0] )
+staticfunction = function([5, 10, 1000], [5,10,17], [lambda x: 0, lambda x: x, lambda x: 0, lambda x: 3] )
 
 XMAX = 20
 desplazamiento = XMAX - movefunction.LastX()
