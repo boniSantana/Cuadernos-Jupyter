@@ -54,6 +54,7 @@ class function:
 
     def Desplazamiento (self, XMAX):
         return XMAX - self.LastX()
+    
 
 
 
@@ -70,8 +71,8 @@ ax = plt.axes(xlim=(-10, XMAX), ylim=(-0.1, 50))
 #plt.xticks(eje_x, my_xticks)
 
 #Preparo las funciones que usaré
-movefunction = function([-5, -3, 1000], [-5,-3], [lambda x: 0, lambda x: 10, lambda x: 0], 1)
-staticfunction = function([4, 20, 1000], [4,20], [lambda x: 0, lambda x: -(x**2)+35, lambda x: 0], 1)
+movefunction = function([-5, -3, 1000], [-5,-3], [lambda x: 0, lambda x: x**2, lambda x: 0], 1)
+staticfunction = function([4, 20,1000], [4,20], [lambda x: 0, lambda x: -(x**2)+35, lambda x: 0], 1)
 
 #Cargo a init las dos líneas vacias
 line, = ax.plot([], [], lw=2)
@@ -83,6 +84,7 @@ y_move = movefunction.Yvalues()
 #Preparo los valores de la función estática
 x_static = staticfunction.Xvalues()
 y_static = staticfunction.Yvalues()
+
 
 # Inicializo el poligono vacío que luego rellenará el area.
 polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
@@ -103,11 +105,11 @@ def animate(t):
     # x = xinicial + v*t
     x_move_t = x_move_t + staticfunction.Velocidad()*t
 
-    condlist = [y_static>=y_move, y_static<y_move]
+    # Preparo un Z que será la intersección de la intersección de areas.
+    condlist = [np.array(y_static)>=np.array(y_move), np.array(y_static)<np.array(y_move)]
     choicelist = [y_move, y_static]
     z = np.select(condlist, choicelist)
-
-    
+ 
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
     # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
@@ -124,7 +126,7 @@ def animate(t):
                 polygone = ax.fill_between(
                 x_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
                 z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-                facecolor='yellow',
+                facecolor='blue',
                 alpha=0.5)
                 
     
@@ -134,7 +136,7 @@ def animate(t):
         polygone = ax.fill_between(
             x_static[0:0],
             z[0:0],
-            facecolor='yellow',
+            facecolor='blue',
             alpha=0.5)
 
  
@@ -147,13 +149,13 @@ def animate(t):
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=int((round(movefunction.Desplazamiento(XMAX)/staticfunction.Velocidad())))
-, interval=5, blit=True)
+, interval=10, blit=True)
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-#anim.save('basic_animation.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+# anim.save('basic_animation.mp4', fps=300, extra_args=['-vcodec', 'libx264'])
 
 plt.show()
