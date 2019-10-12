@@ -8,10 +8,11 @@ matplotlib.use('Qt5Agg')
 
 class function:
 
-    def __init__(self, conditionArray, Xfunc):
+    def __init__(self, domain, conditionArray, functions):
         self.conditionArray = conditionArray
-        self.Xfunc = Xfunc
-        self.x = np.linspace(self.Xfunc[0]-0.01, self.Xfunc[1]+0.01, self.Xfunc[2])
+        self.functions = functions
+        self.lastX = domain[1]
+        self.x = np.linspace(domain[0]-0.01, domain[1]+0.01, domain[2])
 
     def __str__(self):
         return str("Aca voy a poner en el JupyterNotebook algo cool para mostrar tipo Latex la ec")
@@ -20,18 +21,22 @@ class function:
         return self.x
 
     def Condition(self):
-        return [self.x < self.Xfunc[0], (self.x >= self.Xfunc[0]) & (self.x <= self.Xfunc[1]), self.x > self.Xfunc[2]]
+        firstCondition = self.x < self.conditionArray[0]
+        lastCondition = self.x > self.conditionArray[-1]
+            for i in conditionArray:
+                betweenfunctions = 
 
-    def setFunctions(self, func1, func2, func3):
-        self.func1 = lambda x: func1(x)
-        self.func2 = lambda x: func2(x)
-        self.func3 = lambda x: func3(x)
+
+        return [firstCondition, betweenfunctions , lastCondition]
+
+    def setFunctions(self, functions):
+        self.functions = functions
 
     def Yvalues(self):
-        return np.piecewise(self.x, self.Condition(), [self.func1, self.func2, self.func3])
+        return np.piecewise(self.x, self.Condition(), self.functions)
 
-    def lastX(self):
-        return self.Xfunc[1]
+    def LastX(self):
+        return self.lastX
 
 
 
@@ -41,35 +46,12 @@ fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
 
 
 
-movefunction = function([2, 11], [2, 4, 1000])
+movefunction = function([2, 4, 1000], [2,4], [lambda x: 0, lambda x: 2*x, lambda x: 0])
 
-def f(x):
-    return 0
-
-def g(x):
-    return 2**x
-
-def h(x):
-    return 1
-
-#movefunction.setFunctions(f, g, h)
-movefunction.setFunctions(lambda x: 0, lambda x: 2**x, lambda x: 1)
-
-staticfunction = function([7.5, 11], [7.5, 11, 1000])
-
-def f2(x):
-    return 0
-
-def g2(x):
-    return 10
-
-def h2(x):
-    return 0
-
-staticfunction.setFunctions(f2,g2,h2)
+staticfunction = function([5, 10, 1000], [5,10],[lambda x: 0, lambda x: x, lambda x: 0] )
 
 XMAX = 20
-desplazamiento = XMAX - movefunction.lastX()
+desplazamiento = XMAX - movefunction.LastX()
 
 ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
 #eje_x = [1,2,3,4,5,6,7,8,9,10]
