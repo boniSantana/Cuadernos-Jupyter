@@ -62,16 +62,16 @@ fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
                  facecolor='w', edgecolor='k')
 
 #Luego preparo el eje.
-XMAX = 20
-ax = plt.axes(xlim=(0, XMAX), ylim=(-0.1, 50))
+XMAX = 10
+ax = plt.axes(xlim=(-10, XMAX), ylim=(-0.1, 50))
 
 #eje_x = [1,2,3,4,5,6,7,8,9,10]
 #my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
 #plt.xticks(eje_x, my_xticks)
 
 #Preparo las funciones que usaré
-movefunction = function([1, 4, 1000], [1,4], [lambda x: 0, lambda x: 10, lambda x: 0], 5)
-staticfunction = function([10, 15, 1000], [10,15], [lambda x: 0, lambda x: 5, lambda x: 0], 5)
+movefunction = function([-5, -3, 1000], [-5,-3], [lambda x: 0, lambda x: 10, lambda x: 0], 1)
+staticfunction = function([4, 15, 1000], [4,15], [lambda x: 0, lambda x: -(x**2)+35, lambda x: 0], 1)
 
 #Cargo a init las dos líneas vacias
 line, = ax.plot([], [], lw=2)
@@ -84,19 +84,14 @@ y_move = movefunction.Yvalues()
 x_static = staticfunction.Xvalues()
 y_static = staticfunction.Yvalues()
 
-
-
-
 # Inicializo el poligono vacío que luego rellenará el area.
 polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
-polygone2 = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='white', alpha=0.5)
-
 
 # Funcion que inicia la animación
 def init():
     line.set_data([], [])
     line2.set_data([x_static], [y_static])
-    return line, line2, polygone, polygone2
+    return line, line2, polygone, 
 
 # Función animación, es llamada cíclicamente.
 
@@ -108,52 +103,35 @@ def animate(t):
     # x = xinicial + v*t
     x_move_t = x_move_t + staticfunction.Velocidad()*t
 
+    condlist = [y_static>=y_move, y_static<y_move]
+    choicelist = [y_move, y_static]
+    z = np.select(condlist, choicelist)
+
+    
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
-
     # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
     if (x_move_t[-1] >= x_static[0]):
             t_encuentro = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
             polygone = ax.fill_between(
             x_static[0:(t-t_encuentro)*staticfunction.VelocidadEntera()],
-            y_static[0:(t-t_encuentro)*staticfunction.VelocidadEntera()],
+            z[0:(t-t_encuentro)*staticfunction.VelocidadEntera()],
             facecolor='yellow',
             alpha=0.5)
-
-            if (x_move_t[0] >= x_static[0]):
-                t_encuentro_2 = int((x_move[0]-x_static[0])/staticfunction.Velocidad())
-                polygone2 = ax.fill_between(
-                x_static[0:(t-t_encuentro_2)*staticfunction.VelocidadEntera()],
-                y_static[0:(t-t_encuentro_2)*staticfunction.VelocidadEntera()],
-                facecolor='blue',
-                alpha=0.5)
-            else:
-                polygone2 = ax.fill_between(
-                x_static[0:0],
-                y_static[0:0],
-                facecolor='blue',
-                alpha=0.5)
-       
-
 
     # sin el else no anda, se referencia antes de que se llame, no entiendo por que.
     else:
         polygone = ax.fill_between(
             x_static[0:0],
-            y_static[0:0],
+            z[0:0],
             facecolor='yellow',
-            alpha=0.5)
-        polygone2 = ax.fill_between(
-            x_static[0:0],
-            y_static[0:0],
-            facecolor='blue',
             alpha=0.5)
 
  
     
 
     line.set_data(x_move_t, y_move)
-    return line, line2, polygone, polygone2
+    return line, line2, polygone,
 
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
