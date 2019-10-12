@@ -6,12 +6,6 @@ import matplotlib
 
 matplotlib.use('Qt5Agg')
 
-def func1(x):
-    return 2*x
-
-def func2(x):
-    return 2*x
-
 class function:
 
     def __init__(self, conditionArray, Xfunc):
@@ -29,10 +23,12 @@ class function:
         return [self.x < self.Xfunc[0], (self.x >= self.Xfunc[0]) & (self.x <= self.Xfunc[1]), self.x > self.Xfunc[2]]
 
     def setFunctions(self, func1, func2, func3):
-        return [lambda f:func1(self.x), lambda f:func2(self.x), lambda f:func3(self.x)]
+        self.func1 = lambda x: func1(x)
+        self.func2 = lambda x: func2(x)
+        self.func3 = lambda x: func3(x)
 
-    def Yvalues(self, functions):
-        return np.piecewise(self.x, self.Condition(), functions)
+    def Yvalues(self):
+        return np.piecewise(self.x, self.Condition(), [self.func1, self.func2, self.func3])
 
     def lastX(self):
         return self.Xfunc[1]
@@ -47,11 +43,30 @@ fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
 
 movefunction = function([2, 11], [2, 4, 1000])
 
-Functions =movefunction.setFunctions(
-    func1,func2,0)
+def f(x):
+    return 0
+
+def g(x):
+    return 2**x
+
+def h(x):
+    return 1
+
+#movefunction.setFunctions(f, g, h)
+movefunction.setFunctions(lambda x: 0, lambda x: 2**x, lambda x: 1)
 
 staticfunction = function([7.5, 11], [7.5, 11, 1000])
-FunctionsStatic = staticfunction.setFunctions(0, 2, 0)
+
+def f2(x):
+    return 0
+
+def g2(x):
+    return 10
+
+def h2(x):
+    return 0
+
+staticfunction.setFunctions(f2,g2,h2)
 
 XMAX = 20
 desplazamiento = XMAX - movefunction.lastX()
@@ -65,7 +80,7 @@ line, = ax.plot([], [], lw=2)
 line2, = ax.plot([], [], lw=2)
 
 x2 = staticfunction.Xvalues()
-y2 = staticfunction.Yvalues(FunctionsStatic)
+y2 = staticfunction.Yvalues()
 polygone = ax.fill_between(x2[0:0], y2[0:0], facecolor='yellow', alpha=0.5)
 
 # initialization function: plot the background of each frame
@@ -82,7 +97,7 @@ def init():
 def animate(t):
 
     x_func = movefunction.Xvalues()
-    f_x = movefunction.Yvalues(Functions)
+    f_x = movefunction.Yvalues()
     z = np.copy(x_func)
 
     z = z + (t/100)
