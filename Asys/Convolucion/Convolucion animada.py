@@ -21,13 +21,13 @@ class function:
         return self.x
 
     def Condition(self):
-        firstCondition = self.x < self.conditionArray[0]
-        lastCondition = self.x > self.conditionArray[-1]
-            for i in conditionArray:
-                betweenfunctions = 
+        conditions = [self.x < self.conditionArray[0]]
+        for i, condition in enumerate(self.conditionArray[1:-1:]):
+            conditions.append([self.x >= condition & self.x < self.conditionArray[i+1]])
 
-
-        return [firstCondition, betweenfunctions , lastCondition]
+        conditions.append([self.x >= self.conditionArray[-1]])
+        
+        return conditions.append
 
     def setFunctions(self, functions):
         self.functions = functions
