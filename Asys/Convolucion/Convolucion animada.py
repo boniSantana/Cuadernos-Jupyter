@@ -64,27 +64,29 @@ fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
 
 #Luego preparo el eje.
 XMAX = 10
-ax = plt.axes(xlim=(-10, XMAX), ylim=(-0.1, 50))
+ax = plt.axes(xlim=(-10, XMAX), ylim=(-50, 50))
 
 #eje_x = [1,2,3,4,5,6,7,8,9,10]
 #my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
 #plt.xticks(eje_x, my_xticks)
 
 #Preparo las funciones que usaré
-movefunction = function([-5, -3, 1000], [-5,-3], [lambda x: 0, lambda x: x**2, lambda x: 0], 1)
-staticfunction = function([4, 20,1000], [4,20], [lambda x: 0, lambda x: -(x**2)+35, lambda x: 0], 1)
+movefunction = function([-5, -3, 100], [-5,-3], [lambda x: 0, lambda x: x**2, lambda x: 0], 1)
+staticfunction = function([4, 6,100], [4,6], [lambda x: 0, lambda x: -(x**2)+35, lambda x: 0], 1)
 
 #Cargo a init las dos líneas vacias
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot([], [], lw=2)
 #Preparo los valores de la función que se moverá
 x_move = movefunction.Xvalues()
-y_move = movefunction.Yvalues()
+y_move = np.flip(movefunction.Yvalues())
 
 #Preparo los valores de la función estática
 x_static = staticfunction.Xvalues()
 y_static = staticfunction.Yvalues()
 
+print (y_move)
+print (y_static)
 # Inicializo el poligono vacío que luego rellenará el area.
 polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
 
@@ -108,13 +110,11 @@ def animate(t):
     x_move_t = x_move_t + staticfunction.Velocidad()*t
 
     # Preparo un Z que será la intersección de la intersección de areas.
-
-    condlist = [np.array(y_static) >= np.array(y_move), np.array(y_static) < np.array(y_move)]
-    choicelist = [np.array(y_move), np.array(y_static)]
+ 
+    condlist = [y_static >= np.flip(y_move), y_static < np.flip(y_move)]
+    choicelist = [y_move, y_static]
     z =  np.select(condlist, choicelist)
 
-    print ((z == y_static).all())
-    
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
     # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
@@ -125,7 +125,7 @@ def animate(t):
                 polygone = ax.fill_between(
                 x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
                 z[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
-                facecolor='blue',
+                facecolor='yellow',
                 alpha=0.5)
             else:
                 polygone = ax.fill_between(
