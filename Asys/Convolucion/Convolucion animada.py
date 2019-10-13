@@ -85,6 +85,8 @@ y_move = np.flip(movefunction.Yvalues())
 x_static = staticfunction.Xvalues()
 y_static = staticfunction.Yvalues()
 
+
+
 print (y_move)
 print (y_static)
 # Inicializo el poligono vacío que luego rellenará el area.
@@ -115,13 +117,18 @@ def animate(t):
     choicelist = [y_move, y_static]
     z =  np.select(condlist, choicelist)
 
+    condlist2 = [y_static >= y_move, y_static < y_move]
+    choicelist2 = [1, 0]
+    z2 = np.select(condlist2, choicelist2)
+
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
     # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
     if (x_move_t[-1] >= x_static[0]):
             t_encuentro_maximo_minimo = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
             t_encuentro_minimo_minimo = int((x_static[0]-x_move[0])/staticfunction.Velocidad())
-            if (x_move_t[0] >= x_static[0]):
+
+            if (x_move_t[where(z2 == 1)]):
                 polygone = ax.fill_between(
                 x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
                 z[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
