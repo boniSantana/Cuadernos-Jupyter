@@ -64,7 +64,7 @@ fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
 
 #Luego preparo el eje.
 XMAX = 10
-ax = plt.axes(xlim=(-10, XMAX), ylim=(-50, 50))
+ax = plt.axes(xlim=(-10, XMAX), ylim=(-0.1, 50))
 
 #eje_x = [1,2,3,4,5,6,7,8,9,10]
 #my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
@@ -77,6 +77,7 @@ staticfunction = function([4, 6,100], [4,6], [lambda x: 0, lambda x: -(x**2)+35,
 #Cargo a init las dos líneas vacias
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot([], [], lw=2)
+line3, = ax.plot([], [], lw=2)
 #Preparo los valores de la función que se moverá
 x_move = movefunction.Xvalues()
 y_move = np.flip(movefunction.Yvalues())
@@ -85,18 +86,21 @@ y_move = np.flip(movefunction.Yvalues())
 x_static = staticfunction.Xvalues()
 y_static = staticfunction.Yvalues()
 
-
-
-print (y_move)
-print (y_static)
 # Inicializo el poligono vacío que luego rellenará el area.
 polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
+
+
+# Integral de Convolucion x[t]*h[t]
+dt = 0.01
+y_convolve = np.convolve(y_move,y_static,'same')*dt
+
 
 # Funcion que inicia la animación
 def init():
     line.set_data([], [])
     line2.set_data([x_static], [y_static])
-    return line, line2, polygone, 
+    line3.set_data([x_static],[y_convolve])
+    return line, line2, polygone, line3
 
 # Función animación, es llamada cíclicamente.
 
@@ -117,23 +121,31 @@ def animate(t):
     choicelist = [y_move, y_static]
     z =  np.select(condlist, choicelist)
 
-    condlist2 = [y_static >= y_move, y_static < y_move]
-    choicelist2 = [1, 0]
-    z2 = np.select(condlist2, choicelist2)
+    z2 = np.select(condlist, [True, False])
+
+    # Si z2 = 1 es que static es más grande, hay que despintar.
 
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
-    # Si la parte más a la derecha de la funcion que se mueve es mayor que la parte de mas a la izquierda de la estatica:
+    #if (x_move_t[-1])
+
+   
+
+    # Si se encuentran:
     if (x_move_t[-1] >= x_static[0]):
             t_encuentro_maximo_minimo = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
             t_encuentro_minimo_minimo = int((x_static[0]-x_move[0])/staticfunction.Velocidad())
-
-            if (x_move_t[where(z2 == 1)]):
+            
+            # Despintar
+            w = np.where( (x_move_t <= x_static[0]+0.1) & (x_move_t > x_static[0]-0.1) )
+            
+            if (y_move[(w[0][0])] <= y_static[0]): # Si y2-y1 en el lug
                 polygone = ax.fill_between(
                 x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
                 z[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
                 facecolor='yellow',
                 alpha=0.5)
+            # Pintar
             else:
                 polygone = ax.fill_between(
                 x_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
@@ -142,7 +154,7 @@ def animate(t):
                 alpha=0.5)
 
     line.set_data(x_move_t, y_move)
-    return line, line2, polygone,
+    return line, line2, polygone, line3
 
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
