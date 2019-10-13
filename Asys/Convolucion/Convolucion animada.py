@@ -78,18 +78,12 @@ staticfunction = function([4, 20,1000], [4,20], [lambda x: 0, lambda x: -(x**2)+
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot([], [], lw=2)
 #Preparo los valores de la función que se moverá
-global x_move 
-
 x_move = movefunction.Xvalues()
-global y_move 
 y_move = movefunction.Yvalues()
 
 #Preparo los valores de la función estática
-global x_static 
 x_static = staticfunction.Xvalues()
-global y_static 
 y_static = staticfunction.Yvalues()
-
 
 # Inicializo el poligono vacío que luego rellenará el area.
 polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
@@ -103,7 +97,10 @@ def init():
 # Función animación, es llamada cíclicamente.
 
 def animate(t):
-    
+    global y_static
+    global y_move
+    global x_move
+    global polygone
     #Variable auxiliar que contendrá los valors iniciales de x_move.
     x_move_t = np.copy(x_move)
 
@@ -111,11 +108,12 @@ def animate(t):
     x_move_t = x_move_t + staticfunction.Velocidad()*t
 
     # Preparo un Z que será la intersección de la intersección de areas.
-    y_static = np.array(y_static)
-    y_move = np.array(y_move)
-    condlist = [y_static >= y_move, y_static < y_move]
-    choicelist = [y_move, y_static]
+
+    condlist = [np.array(y_static) >= np.array(y_move), np.array(y_static) < np.array(y_move)]
+    choicelist = [np.array(y_move), np.array(y_static)]
     z =  np.select(condlist, choicelist)
+
+    print ((z == y_static).all())
     
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
@@ -135,19 +133,6 @@ def animate(t):
                 z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
                 facecolor='blue',
                 alpha=0.5)
-                
-    
-
-    # sin el else no anda, se referencia antes de que se llame, no entiendo por que.
-    else:
-        polygone = ax.fill_between(
-            x_static[0:0],
-            z[0:0],
-            facecolor='blue',
-            alpha=0.5)
-
- 
-    
 
     line.set_data(x_move_t, y_move)
     return line, line2, polygone,
