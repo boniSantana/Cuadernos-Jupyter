@@ -124,7 +124,7 @@ def animate(t):
         z =  np.select(condlist, choicelist)
     
     else:
-        z = y_static
+        z = y_static - y_move
 
 
     if (t >= t_encuentro_maximo_minimo):
