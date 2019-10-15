@@ -63,21 +63,21 @@ fig = plt.figure(num=None, figsize=(14, 6), dpi=80,
                  facecolor='w', edgecolor='k')
 
 #Luego preparo el eje.
-XMAX = 10
-ax = plt.axes(xlim=(-10, XMAX), ylim=(-0.1, 50))
+XMAX = 20
+ax = plt.axes(xlim=(-10, XMAX), ylim=(-20, 50))
 
 #eje_x = [1,2,3,4,5,6,7,8,9,10]
 #my_xticks = ['t', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7', 't-8', 't-9']
 #plt.xticks(eje_x, my_xticks)
 
 #Preparo las funciones que usaré
-movefunction = function([-5, -3, 100], [-5,-3], [lambda x: 0, lambda x: x**2, lambda x: 0], 1)
-staticfunction = function([4, 6,100], [4,6], [lambda x: 0, lambda x: -(x**2)+35, lambda x: 0], 1)
+movefunction = function([0, 5, 100], [0,5], [lambda x: 0, lambda x: x**2, lambda x: 0], 1)
+staticfunction = function([5, 10,100], [5,10], [lambda x: 0, lambda x: -x+20, lambda x: 0], 1)
 
 #Cargo a init las dos líneas vacias
 line, = ax.plot([], [], lw=2)
 line2, = ax.plot([], [], lw=2)
-line3, = ax.plot([], [], lw=2)
+#line3, = ax.plot([], [], lw=2)
 #Preparo los valores de la función que se moverá
 x_move = movefunction.Xvalues()
 y_move = np.flip(movefunction.Yvalues())
@@ -99,8 +99,8 @@ y_convolve = np.convolve(y_move,y_static,'same')*dt
 def init():
     line.set_data([], [])
     line2.set_data([x_static], [y_static])
-    line3.set_data([x_static],[y_convolve])
-    return line, line2, polygone, line3
+    #line3.set_data([x_static],[y_convolve])
+    return line, line2, polygone, #line3
 
 # Función animación, es llamada cíclicamente.
 
@@ -137,24 +137,42 @@ def animate(t):
             t_encuentro_minimo_minimo = int((x_static[0]-x_move[0])/staticfunction.Velocidad())
             
             # Despintar
-            w = np.where( (x_move_t <= x_static[0]+0.1) & (x_move_t > x_static[0]-0.1) )
-            
-            if (y_move[(w[0][0])] <= y_static[0]): # Si y2-y1 en el lug
-                polygone = ax.fill_between(
-                x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
-                z[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
-                facecolor='yellow',
-                alpha=0.5)
+            w = np.where( (np.flip(x_move_t) <= x_static[0]+0.1) & (np.flip(x_move_t) > x_static[0]-0.1) )
+            #w me da la ubicación en que parte de x_move_t esta el inicio de x_static
+            #O sea siempre me da la ubicacion de que punto hay en X de la función en movimiento 
+            #cuando pasa por el principio de la estática.
+
+            #w[0][0] no esta chequeado... o sea lo hice yo y estoy medio lost.
+            #Quise decir, ¿cuánto vale y cuando pasa por el inicio de y_static?.
+            #creo sería así
+
+#            if (np.flip(y_move[(w[0][0])]) <= y_static[0]): # Si y2-y1 en el lug
+#                polygone = ax.fill_between(
+#                x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
+#                y_move,#z[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
+#                facecolor='white',
+#                alpha=0.5)
             # Pintar
-            else:
+#            else:
+
+            polygone = ax.fill_between(
+            x_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+            y_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],#z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+            facecolor='blue',
+            alpha=0.5)
+            for i in range(0,10):          
                 polygone = ax.fill_between(
                 x_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-                z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-                facecolor='blue',
+                np.flip(x_move_t[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()]),#z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+                facecolor='yellow',
                 alpha=0.5)
-
+   #         polygone = ax.fill_between(
+   #         y_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+   #         z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+   #         facecolor="red", #marx aproves
+   #         alpha=0.5)    
     line.set_data(x_move_t, y_move)
-    return line, line2, polygone, line3
+    return line, line2, polygone, #line3
 
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
