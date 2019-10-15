@@ -111,7 +111,7 @@ def animate(t):
 
     t_encuentro_maximo_minimo = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
     t_encuentro_minimo_minimo = int((x_static[0]-x_move[0])/staticfunction.Velocidad())
-    
+    t_encuentro_minimo_maximo = int((x_static[-1]-x_move[0])/staticfunction.Velocidad())
     intersection_x = np.where( (x_move_t < x_static[0] + 0.1) & (x_move_t > x_static[0] - 0.1))
     print(y_static[intersection_x[0]])
 
@@ -123,8 +123,7 @@ def animate(t):
         # Preparo un Z que será la intersección de la intersección de areas.
         z =  np.select(condlist, choicelist)
     
-    else:
-        z = y_static - y_move
+ 
 
 
     if (t >= t_encuentro_maximo_minimo):
