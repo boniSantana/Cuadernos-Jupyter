@@ -14,43 +14,40 @@ def u(t):
     return np.piecewise(t,t>=0,[1,0])
 
 # Figura.
-fig = plt.figure(num=None, figsize=(14, 6), dpi=80, facecolor='w', edgecolor='k')
+fig = plt.figure()
+ax1 = fig.add_subplot(2, 1, 2)
+ax2 = fig.add_subplot(2, 2, 1)
+ax3 = fig.add_subplot(2, 2, 2)
+
+plt.suptitle('Integral de Convolución x(t)*h(t)')
+
 
 # Eje.
 XMAX = 30
 XMIN = -10
 YMIN = -2
 YMAX = 15
-ax = plt.axes(xlim=(XMIN, XMAX), ylim=(YMIN, YMAX))
+ax1.set_xlim (XMIN, XMAX)
+ax1.set_ylim (YMIN, YMAX)
 
-ax.spines['right'].set_color('none')
-ax.spines['top'].set_color('none')
-ax.xaxis.set_ticks_position('bottom')
-ax.spines['bottom'].set_position(('data',0))
-ax.yaxis.set_ticks_position('left')
-ax.spines['left'].set_position(('data',0))
 
 # tiempo [a,b], muestras, dt.
 a = -5 ; b = 5 ; muestras = 101 ; dt = 0.01
 
-
-
 #Preparo los valores de la función que se moverá (señal de entrada)
-
 def x(t):
     return 10*np.exp(-3*t)*u(t)
 
-x_move_initial = np.linspace(a, b, muestras)
-y_move = np.flip(x(x_move_initial))
+x_move_initial = np.arange(a,b+dt,dt)
+y_move = x(x_move_initial)
 y_move[-1] = 0
 y_move[0] = 0
 
 #Preparo los valores de la función estática (respuesta al escalón)
-
 def h(t):
     return (2*np.exp(-2*t)-np.exp(-t))*u(t)
 
-x_static = np.linspace(5, 10, muestras)
+x_static = np.arange(a,b+dt,dt)
 y_static = h(x_static)
 y_static[0] = 0
 y_static [-1] = 0
@@ -62,23 +59,41 @@ y_convolve = np.convolve(y_move,y_static,'same')*dt
 
 
 #Cargo a init las dos líneas vacias
-line, = ax.plot([], [], lw=2)
-line2, = ax.plot([], [], lw=2)
+line, = ax1.plot([], [], lw=2)
+line2, = ax1.plot([], [], lw=2)
 
 # Inicializo el poligono vacío que luego rellenará el area.
-polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
-polygone2 = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
+polygone = ax1.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
+polygone2 = ax1.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
 
 #Distancia entre dos puntos de X_static.
 velocidad = (x_static[6]-x_static[5])
+
+plt.subplot(222)
+plt.plot(x_static,y_static,'b', label='x(t)')
+plt.plot(x_move_initial,y_move,'r', label='h(t)')
+plt.legend()
+plt.grid()
+
+plt.subplot(224)
+plt.plot(x_static,y_convolve,'m', label='x(t)*h(t)')
+plt.xlabel('t')
+plt.legend()
+plt.grid()
+
 
 # Funcion que inicia la animación
 def init():
     line.set_data([], [])
     line2.set_data([x_static], [y_static])
+
+
+
     return line, line2, polygone, polygone2
 
 # Función animación, es llamada cíclicamente.
+
+y_move = np.flip(y_move) # Para la convolucion se tiene que ver al reves.
 
 def animate(t):
 
@@ -88,22 +103,23 @@ def animate(t):
     # x = xinicial + v*t
     x_move_t = x_move_initial + velocidad*t
 
-    ax.collections.clear() # Sino no funciona el rellenado correctamente
+    ax1.collections.clear() # Sino no funciona el rellenado correctamente
     
     t_encuentro_maximo_minimo = int((x_static[0]-x_move_initial[-1])/velocidad)
     t_encuentro_minimo_minimo = int((x_static[0]-x_move_initial[0])/velocidad)
    
+    
 
     # Si se encuentran:
     if (t >= t_encuentro_maximo_minimo) and (t <= t_encuentro_minimo_minimo):
-        polygone = ax.fill_between(
+        polygone = ax1.fill_between(
             x_static[0:(t-t_encuentro_maximo_minimo)],
             y_static[0:(t-t_encuentro_maximo_minimo)],
             color = 'lightpink', 
             alpha = 0.4, 
             hatch = '/',
         )
-        polygone2 = ax.fill_between(
+        polygone2 = ax1.fill_between(
             np.flip(x_move_t)[0:(t-t_encuentro_maximo_minimo)],
             np.flip(y_move)[0:(t-t_encuentro_maximo_minimo)],
             color = 'lightgreen', 
@@ -114,14 +130,14 @@ def animate(t):
     elif (t > t_encuentro_minimo_minimo):
 
         
-        polygone = ax.fill_between(
+        polygone = ax1.fill_between(
             x_static[(t-t_encuentro_minimo_minimo)::],
             y_static[(t-t_encuentro_minimo_minimo)::],
             color = 'lightpink', 
             alpha = 0.4, 
             hatch = '/',
         )
-        polygone2 = ax.fill_between(
+        polygone2 = ax1.fill_between(
             np.flip(x_move_t)[(t-t_encuentro_minimo_minimo)::],
             np.flip(y_move)[(t-t_encuentro_minimo_minimo)::],
             color = 'lightgreen', 
@@ -130,8 +146,8 @@ def animate(t):
         )
     
     else:
-        polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
-        polygone2 = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
+        polygone = ax1.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
+        polygone2 = ax1.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
         
     line.set_data(x_move_t, y_move)
     
