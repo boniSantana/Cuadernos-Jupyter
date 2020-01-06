@@ -88,7 +88,7 @@ y_static = staticfunction.Yvalues()
 
 # Inicializo el poligono vacío que luego rellenará el area.
 polygone = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
-
+polygone2 = ax.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', alpha=0.5)
 
 # Integral de Convolucion x[t]*h[t]
 dt = 0.01
@@ -99,8 +99,7 @@ y_convolve = np.convolve(y_move,y_static,'same')*dt
 def init():
     line.set_data([], [])
     line2.set_data([x_static], [y_static])
-    #line3.set_data([x_static],[y_convolve])
-    return line, line2, polygone, #line3
+    return line, line2, polygone, polygone2
 
 # Función animación, es llamada cíclicamente.
 
@@ -115,64 +114,43 @@ def animate(t):
     # x = xinicial + v*t
     x_move_t = x_move_t + staticfunction.Velocidad()*t
 
-    # Preparo un Z que será la intersección de la intersección de areas.
- 
-    condlist = [y_static >= np.flip(y_move), y_static < np.flip(y_move)]
-    choicelist = [y_move, y_static]
-    z =  np.select(condlist, choicelist)
-
-    z2 = np.select(condlist, [True, False])
-
-    # Si z2 = 1 es que static es más grande, hay que despintar.
-
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
-    #if (x_move_t[-1])
-
+    t_encuentro_maximo_minimo = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
+    t_encuentro_minimo_minimo = int((x_static[0]-x_move[0])/staticfunction.Velocidad())
    
 
     # Si se encuentran:
-    if (x_move_t[-1] >= x_static[0]):
-            t_encuentro_maximo_minimo = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
-            t_encuentro_minimo_minimo = int((x_static[0]-x_move[0])/staticfunction.Velocidad())
-            
-            # Despintar
-            w = np.where( (np.flip(x_move_t) <= x_static[0]+0.1) & (np.flip(x_move_t) > x_static[0]-0.1) )
-            #w me da la ubicación en que parte de x_move_t esta el inicio de x_static
-            #O sea siempre me da la ubicacion de que punto hay en X de la función en movimiento 
-            #cuando pasa por el principio de la estática.
-
-            #w[0][0] no esta chequeado... o sea lo hice yo y estoy medio lost.
-            #Quise decir, ¿cuánto vale y cuando pasa por el inicio de y_static?.
-            #creo sería así
-
-#            if (np.flip(y_move[(w[0][0])]) <= y_static[0]): # Si y2-y1 en el lug
-#                polygone = ax.fill_between(
-#                x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
-#                y_move,#z[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera():],
-#                facecolor='white',
-#                alpha=0.5)
-            # Pintar
-#            else:
-
-            polygone = ax.fill_between(
+    if (t > t_encuentro_maximo_minimo) and (t < t_encuentro_minimo_minimo):
+        polygone = ax.fill_between(
             x_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-            y_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],#z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+            y_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
             facecolor='blue',
-            alpha=0.5)
-            for i in range(0,10):          
-                polygone = ax.fill_between(
-                x_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-                np.flip(x_move_t[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()]),#z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-                facecolor='yellow',
-                alpha=0.5)
-   #         polygone = ax.fill_between(
-   #         y_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-   #         z[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-   #         facecolor="red", #marx aproves
-   #         alpha=0.5)    
+            alpha=0.5
+        )
+        polygone2 = ax.fill_between(
+            np.flip(x_move_t)[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+            np.flip(y_move)[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+            facecolor='green',
+            alpha=0.5
+        )
+
+    if (t > t_encuentro_maximo_minimo) and (t > t_encuentro_minimo_minimo):
+        polygone = ax.fill_between(
+            x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
+            y_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
+            facecolor='blue',
+            alpha=0.5
+        )
+        polygone2 = ax.fill_between(
+            np.flip(x_move_t)[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
+            np.flip(y_move)[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
+            facecolor='green',
+            alpha=0.5
+        )
+                
     line.set_data(x_move_t, y_move)
-    return line, line2, polygone, #line3
+    return line, line2, polygone, polygone2
 
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
