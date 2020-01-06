@@ -112,40 +112,33 @@ def animate(t):
     x_move_t = np.copy(x_move)
 
     # x = xinicial + v*t
-    x_move_t = x_move_t + staticfunction.Velocidad()*t
+    x_move_t = x_move + staticfunction.Velocidad()*t
 
     ax.collections.clear() # Sino no funciona el rellenado correctamente
     
     t_encuentro_maximo_minimo = int((x_static[0]-x_move[-1])/staticfunction.Velocidad())
     t_encuentro_minimo_minimo = int((x_static[0]-x_move[0])/staticfunction.Velocidad())
    
-
     # Si se encuentran:
     if (t > t_encuentro_maximo_minimo) and (t < t_encuentro_minimo_minimo):
         polygone = ax.fill_between(
             x_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-            y_static[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+            np.flip(np.minimum(
+                np.flip(y_static)[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
+                np.flip(y_move)[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()]
+            )),
             facecolor='blue',
-            alpha=0.5
-        )
-        polygone2 = ax.fill_between(
-            np.flip(x_move_t)[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-            np.flip(y_move)[0:(t-t_encuentro_maximo_minimo)*staticfunction.VelocidadEntera()],
-            facecolor='green',
             alpha=0.5
         )
 
-    if (t > t_encuentro_maximo_minimo) and (t > t_encuentro_minimo_minimo):
+    elif (t > t_encuentro_minimo_minimo):
         polygone = ax.fill_between(
             x_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
-            y_static[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
+            np.flip(np.minimum(
+                np.flip(y_static)[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
+                np.flip(y_move[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::]
+            )),
             facecolor='blue',
-            alpha=0.5
-        )
-        polygone2 = ax.fill_between(
-            np.flip(x_move_t)[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
-            np.flip(y_move)[(t-t_encuentro_minimo_minimo)*staticfunction.VelocidadEntera()::],
-            facecolor='green',
             alpha=0.5
         )
                 
