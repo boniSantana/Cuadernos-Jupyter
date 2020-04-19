@@ -1,8 +1,10 @@
 import plotly.tools as tls
 from matplotlib import animation
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 import sympy as sp
 import shapely as sh
 from shapely.geometry import Polygon
@@ -14,16 +16,17 @@ def u(t):
     return np.piecewise(t,t>=0,[1,0])
 
 # Figura.
-fig = plt.figure()
-ax1 = fig.add_subplot(2, 1, 2)
-ax2 = fig.add_subplot(2, 2, 1)
-ax3 = fig.add_subplot(2, 2, 2)
+fig: Figure = plt.figure()
+grid = fig.add_gridspec(ncols=2, nrows=2)
+ax1: Axes = fig.add_subplot(grid[1, :])
+ax2: Axes = fig.add_subplot(grid[0, 0])
+ax3: Axes = fig.add_subplot(grid[0, 1])
 
 plt.suptitle('Integral de Convolución x(t)*h(t)')
 
 
 # Eje.
-XMAX = 30
+XMAX = 15
 XMIN = -10
 YMIN = -2
 YMAX = 15
@@ -45,7 +48,7 @@ y_move[0] = 0
 
 #Preparo los valores de la función estática (respuesta al escalón)
 def h(t):
-    return (2*np.exp(-2*t)-np.exp(-t))*u(t)
+    return 5*u(t)
 
 x_static = np.arange(a,b+dt,dt)
 y_static = h(x_static)
@@ -69,17 +72,16 @@ polygone2 = ax1.fill_between(x_static[0:0], y_static[0:0], facecolor='yellow', a
 #Distancia entre dos puntos de X_static.
 velocidad = (x_static[6]-x_static[5])
 
-plt.subplot(222)
-plt.plot(x_static,y_static,'b', label='x(t)')
-plt.plot(x_move_initial,y_move,'r', label='h(t)')
-plt.legend()
-plt.grid()
+ax3.plot(x_static,y_static,'b', label='x(t)')
+ax3.plot(x_move_initial,y_move,'r', label='h(t)')
+ax3.legend()
+ax3.grid()
 
-plt.subplot(224)
-plt.plot(x_static,y_convolve,'m', label='x(t)*h(t)')
-plt.xlabel('t')
-plt.legend()
-plt.grid()
+
+ax2.plot(x_static,y_convolve,'m', label='x(t)*h(t)')
+ax2.set_xlabel('t')
+ax2.legend()
+ax2.grid()
 
 
 # Funcion que inicia la animación
@@ -157,13 +159,13 @@ def animate(t):
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=int((round((XMAX-b)/velocidad)))
-, interval=10, blit=True)
+, interval=1, blit=True)
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-# anim.save('basic_animation.mp4', fps=300, extra_args=['-vcodec', 'libx264'])
+anim.save('basic_animation.mp4', fps=300, extra_args=['-vcodec', 'libx264'])
 
 plt.show()
