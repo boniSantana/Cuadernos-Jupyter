@@ -3,11 +3,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import animation
 
-matplotlib.use('Qt5Agg')
-
 def trayectoria(fase, amplitud, v_angular, t):
     return amplitud * np.sin ((v_angular * t)+ fase)
-
 
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure()
@@ -62,7 +59,7 @@ def animate(t):
  
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=tiempo, interval=1, blit=True)
+                               frames=tiempo, interval=2, blit=True)
  
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that

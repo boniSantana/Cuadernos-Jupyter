@@ -40,12 +40,12 @@ class Plot:
 
     def update(self, frame):       
         frame = self.currentFrame     
-        self.line.set_data(self.x[0:frame], self.y[0:frame]) # actualizar valor line
-        self.point.set_data(self.x[frame],self.y[frame]) # actualizar valor point
-        self.slider.eventson = False # Que no me reconozca mas los eventos
-        self.slider.set_val(frame) # cambio el valor
+        self.line.set_data(self.x[0:frame], self.y[0:frame]) # Grafico linea desde 0 hasta frame
+        self.point.set_data(self.x[frame],self.y[frame]) # Grafico punto en frame
+        self.slider.eventson = False # Que no me reconozca más el evento del slider, para que así no entre en un bucle infinito de doble entrada.
+        self.slider.set_val(frame) # actualizo la posición del slider al frame actual
         self.slider.eventson = True # Que los vuelva a reconocer        
-        self.currentFrame += 1 # siguiente frame
+        self.currentFrame += 1 # Continuar hasta que termine o alguien toque el slider
         print("currentFrame", self.currentFrame)
         print("Despues", frame)
 
